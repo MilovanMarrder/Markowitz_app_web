@@ -1,9 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import pandas as pd
 import numpy as np
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-from utils import calcular_carteras
+import math
 
 app = Flask(__name__)
 
@@ -13,59 +11,40 @@ def index():
 
 @app.route('/analizar', methods=['POST'])
 def analizar():
-    # Recibir los datos del formulario
     data = request.get_json()
     activos = data['activos']
 
-    # Extraer solo los rendimientos para el DataFrame
-    activos_rendimientos = {}
-    for activo in activos:
-        activos_rendimientos[activo['nombre']] = activo['rendimientos']
+    # Convertir a DataFrame
+    activos_rendimientos = {activo['name']: activo['returns'] for activo in activos}
+    df = pd.DataFrame(activos_rendimientos)
 
-    # Crear un DataFrame solo con los rendimientos
-    returns = pd.DataFrame(activos_rendimientos)
+    # Calcular retornos esperados y matriz de covarianza
+    returns = df.mean().to_numpy()
+    cov = df.cov().to_numpy()
 
-    # Calcular carteras posibles usando el modelo de Markowitz
-    results, df_distribucion = calcular_carteras(returns)
+    # Generar carteras aleatorias
+    n_portfolios = 1000
+    x = []
+    y = []
+    text = []
 
-    # Crear el gráfico con Plotly (sin cambios en esta parte)
-    fig = go.Figure()
+    for _ in range(n_portfolios):
+        weights = np.random.random(len(activos))
+        weights /= np.sum(weights)
+        portfolio_return = np.dot(weights, returns)
+        portfolio_risk = np.sqrt(np.dot(weights.T, np.dot(cov, weights)))
 
-    # Crear hover text (sin cambios en esta parte)
-    hover_text = []
-    for _, row in results.iterrows():
-        text = f"Return: {row['Return']:.4f}<br>Risk: {row['Risk']:.4f}<br>Sharpe: {row['Sharpe']:.4f}<br>"
-        text += "<br>".join([f"{col.replace('Weight_', '')}: {w:.2%}" for col, w in row.items() if col.startswith('Weight_')])
-        hover_text.append(text)
+        x.append(portfolio_risk)
+        y.append(portfolio_return)
+        text.append(generate_tooltip_text(activos, weights, portfolio_return, portfolio_risk))
 
-    # Crear el gráfico de dispersión
-    fig.add_trace(go.Scatter(
-        x=results['Risk'],
-        y=results['Return'],
-        mode='markers',
-        marker=dict(
-            size=5,
-            color=results['Sharpe'],
-            colorscale='Viridis',
-            colorbar=dict(title='Sharpe Ratio'),
-            showscale=True
-        ),
-        text=hover_text,
-        hoverinfo='text'
-    ))
+    return jsonify({'x': x, 'y': y, 'text': text})
 
-    fig.update_layout(
-        title='Carteras Posibles',
-        xaxis_title='Riesgo de la cartera',
-        yaxis_title='Rendimiento de la cartera',
-        width=800,
-        height=600
-    )
-
-    # Convertir gráfico a JSON
-    graphJSON = fig.to_json()
-
-    return jsonify({'graph': graphJSON, 'distribucion': df_distribucion.to_dict(orient='records')})
+def generate_tooltip_text(activos, weights, portfolio_return, portfolio_risk):
+    text = f"Return: {portfolio_return:.4f}<br>Risk: {portfolio_risk:.4f}<br><br>Weights:<br>"
+    for i, asset in enumerate(activos):
+        text += f"{asset['name']}: {(weights[i] * 100):.2f}%<br>"
+    return text
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -3,70 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markowitz Portfolio Analyzer</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <title>Modelo de Markowitz</title>
-</head>
-<body>
-    <h1>Modelo de Markowitz - Análisis de Carteras</h1>
-
-    <form id="form-activos">
-        <div id="activos-container">
-            <!-- Primer activo -->
-            <div class="activo">
-                <label>Nombre del Activo:</label>
-                <input type="text" name="nombre_activo" placeholder="Activo 1">
-                <div class="rendimientos">
-                    <label>Rendimientos (últimos 6 meses):</label>
-                    <input type="number" name="rendimiento_mes" placeholder="Mes 1" step="0.01">
-                    <input type="number" name="rendimiento_mes" placeholder="Mes 2" step="0.01">
-                    <input type="number" name="rendimiento_mes" placeholder="Mes 3" step="0.01">
-                    <input type="number" name="rendimiento_mes" placeholder="Mes 4" step="0.01">
-                    <input type="number" name="rendimiento_mes" placeholder="Mes 5" step="0.01">
-                    <input type="number" name="rendimiento_mes" placeholder="Mes 6" step="0.01">
-                </div>
-            </div>
-        </div>
-        <button type="button" id="agregar-activo">Agregar Activo</button>
-        <button type="submit">Analizar Carteras Posibles</button>
-    </form>
-
-    <div id="grafico-container"></div>
-
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        // Agregar nuevo activo
-        $('#agregar-activo').on('click', function () {
-            $('#activos-container').append($('.activo:first').clone());
-        });
+</head>
+<body>
+    <div class="container">
+        <h1>Markowitz Portfolio Analyzer</h1>
 
-        // Enviar datos del formulario
-        $('#form-activos').on('submit', function (e) {
-            e.preventDefault();
+        <div class="card">
+            <h3>Add Asset</h3>
+            <label for="name">Asset Name:</label>
+            <input type="text" id="name" class="input-field">
+            <br>
+            <label for="returns">Returns (comma-separated):</label>
+            <input type="text" id="returns" class="input-field">
+            <br>
+            <button id="add-asset" class="btn">Add Asset</button>
+        </div>
 
-            let activos = [];
-            $('.activo').each(function () {
-                let nombre = $(this).find('input[name="nombre_activo"]').val();
-                let rendimientos = [];
-                $(this).find('input[name="rendimiento_mes"]').each(function () {
-                    let valor = parseFloat($(this).val());
-                    rendimientos.push(valor);
-                });
-                activos.push({ nombre: nombre, rendimientos: rendimientos });
-            });
+        <div class="card">
+            <h3>Upload CSV</h3>
+            <input type="file" id="csv-file" class="input-field" accept=".csv">
+            <br>
+            <label for="transpose-csv">
+                <input type="checkbox" id="transpose-csv"> Transpose data (Columns are Assets)
+            </label>
+            <br>
+            <label for="delimiter-csv">
+                <input type="checkbox" id="delimiter-csv"> Use ';' as delimiter
+            </label>
+            <br>
+            <label for="header-csv">
+                <input type="checkbox" id="header-csv"> Nombre de activo en encabezado
+            </label>
+        </div>
 
-            $.ajax({
-                url: '/analizar',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({ activos: activos }),
-                success: function (data) {
-                    let graph = data.graph;
-                    Plotly.newPlot('grafico-container', JSON.parse(graph));
-                }
-            });
-        });
-    </script>
+        <h3>Assets:</h3>
+        <div id="asset-list" class="card"></div>
+
+        <button id="generate-graph" class="btn">Generate Efficient Frontier</button>
+
+        <div id="plotly-graph"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 </body>
 </html>
-
