@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Modelo de Markowitz</title>
+</head>
+<body>
+    <h1>Modelo de Markowitz - Análisis de Carteras</h1>
+
+    <form id="form-activos">
+        <div id="activos-container">
+            <!-- Primer activo -->
+            <div class="activo">
+                <label>Nombre del Activo:</label>
+                <input type="text" name="nombre_activo" placeholder="Activo 1">
+                <div class="rendimientos">
+                    <label>Rendimientos (últimos 6 meses):</label>
+                    <input type="number" name="rendimiento_mes" placeholder="Mes 1" step="0.01">
+                    <input type="number" name="rendimiento_mes" placeholder="Mes 2" step="0.01">
+                    <input type="number" name="rendimiento_mes" placeholder="Mes 3" step="0.01">
+                    <input type="number" name="rendimiento_mes" placeholder="Mes 4" step="0.01">
+                    <input type="number" name="rendimiento_mes" placeholder="Mes 5" step="0.01">
+                    <input type="number" name="rendimiento_mes" placeholder="Mes 6" step="0.01">
+                </div>
+            </div>
+        </div>
+        <button type="button" id="agregar-activo">Agregar Activo</button>
+        <button type="submit">Analizar Carteras Posibles</button>
+    </form>
+
+    <div id="grafico-container"></div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Agregar nuevo activo
+        $('#agregar-activo').on('click', function () {
+            $('#activos-container').append($('.activo:first').clone());
+        });
+
+        // Enviar datos del formulario
+        $('#form-activos').on('submit', function (e) {
+            e.preventDefault();
+
+            let activos = [];
+            $('.activo').each(function () {
+                let nombre = $(this).find('input[name="nombre_activo"]').val();
+                let rendimientos = [];
+                $(this).find('input[name="rendimiento_mes"]').each(function () {
+                    let valor = parseFloat($(this).val());
+                    rendimientos.push(valor);
+                });
+                activos.push({ nombre: nombre, rendimientos: rendimientos });
+            });
+
+            $.ajax({
+                url: '/analizar',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ activos: activos }),
+                success: function (data) {
+                    let graph = data.graph;
+                    Plotly.newPlot('grafico-container', JSON.parse(graph));
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
