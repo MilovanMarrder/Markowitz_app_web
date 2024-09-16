@@ -20,7 +20,7 @@ $('#add-asset').click(function() {
         $('#name').val('')  
         $('#returns').val('')  
     } else {
-        alert('Please enter both the asset name and returns.')
+        alert('Agrega el nombre del activo y su rendimiento')
     }
 })
 
@@ -116,7 +116,7 @@ function updateAssetList() {
 // Generar gráfico
 $('#generate-graph').click(function() {
     if (selectedAssets.length === 0) {
-        alert('Please select at least one asset for the analysis.')
+        alert('Porfavor, selecciona almenos uno de los activos')
         return
     }
 

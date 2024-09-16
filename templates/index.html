@@ -3,52 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Markowitz Portfolio Analyzer</title>
+    <title>Análisis de Portafolio Markowitz</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Markowitz Portfolio Analyzer</h1>
-
-        <div class="card">
-            <h3>Add Asset</h3>
-            <label for="name">Asset Name:</label>
-            <input type="text" id="name" class="input-field">
-            <br>
-            <label for="returns">Returns (comma-separated):</label>
-            <input type="text" id="returns" class="input-field">
-            <br>
-            <button id="add-asset" class="btn">Add Asset</button>
+        <!-- Contenedor para la interfaz con flexbox -->
+        <div class="interface">
+            <!-- Panel izquierdo: Formulario, botones y lista de activos -->
+            <div class="left-panel">
+                <h3>Seleccionar activos a analizar:</h3>
+                <div id="select-assets" class="card"></div>
+    
+                <h3>Activos:</h3>
+                <div id="asset-list" class="card"></div>
+    
+                <h3>Agregar activos manualmente:</h3>
+                <input type="text" id="name" placeholder="Nombre de activo">
+                <input type="text" id="returns" placeholder="Rendimientos (separados por comas)">
+                <button id="add-asset" class="btn">Agregar a listado</button>
+    
+                <h3>Cargar CSV:</h3>
+                <input type="file" id="csv-file" class="input-field" accept=".csv">
+                <label for="transpose-csv">
+                    <input type="checkbox" id="transpose-csv"> Nombre en columnas (transponer)
+                </label>
+                <br>
+                <label for="delimiter-csv">
+                    <input type="checkbox" id="delimiter-csv"> Utiliza ';' como delimitador
+                </label>
+                <br>
+                <label for="header-csv">
+                    <input type="checkbox" id="header-csv"> Nombre de activo en encabezado
+                </label>
+                <br>
+                <button id="generate-graph" class="btn">Generar gráfico</button>
+            </div>
+    
+            <!-- Panel derecho: Gráfico -->
+            <div class="right-panel">
+                <div id="plotly-graph"></div>
+            </div>
         </div>
-
-        <div class="card">
-            <h3>Upload CSV</h3>
-            <input type="file" id="csv-file" class="input-field" accept=".csv">
-            <br>
-            <label for="transpose-csv">
-                <input type="checkbox" id="transpose-csv"> Transpose data (Columns are Assets)
-            </label>
-            <br>
-            <label for="delimiter-csv">
-                <input type="checkbox" id="delimiter-csv"> Use ';' as delimiter
-            </label>
-            <br>
-            <label for="header-csv">
-                <input type="checkbox" id="header-csv"> Nombre de activo en encabezado
-            </label>
-        </div>
-        <h3>Select Assets for Analysis:</h3>
-        <div id="select-assets" class="card"></div>
-
-        <h3>Assets:</h3>
-        <div id="asset-list" class="card"></div>
-
-        <button id="generate-graph" class="btn">Generate Efficient Frontier</button>
-
-        <div id="plotly-graph"></div>
     </div>
+    
 
     <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 </body>
