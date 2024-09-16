@@ -58,3 +58,22 @@ h3 {
 #plotly-graph {
     margin-top: 20px;
 }
+.btn-selected {
+    background-color: #5a5a5a;
+    color: white;
+}
+
+.btn-deselected {
+    background-color: #dddddd;
+    color: white;
+}
+
+.selected-asset {
+    background-color: #ffffff;
+    color: black;
+}
+
+.deselected-asset {
+    background-color: #f0f0f0;
+    color: #999999;
+}
