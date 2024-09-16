@@ -100,7 +100,9 @@ function updateAssetSelection() {
         }
         updateAssetSelection()  // Actualizar visualmente los botones
         updateAssetList()  // Actualizar visualmente la lista de activos
+        generateGraph()
     })
+    generateGraph()
 }
 
 // Función para actualizar la lista de activos
@@ -113,16 +115,10 @@ function updateAssetList() {
     })
 }
 
-// Generar gráfico
-$('#generate-graph').click(function() {
-    if (selectedAssets.length === 0) {
-        alert('Porfavor, selecciona almenos uno de los activos')
-        return
-    }
-
-    // Filtrar los activos seleccionados
+// Función para generar el gráfico automáticamente
+function generateGraph() {
     const filteredAssets = assets.filter(asset => selectedAssets.includes(asset.name))
-    
+
     $.ajax({
         url: '/analizar',
         method: 'POST',
@@ -137,12 +133,12 @@ $('#generate-graph').click(function() {
                 text: data.text,
                 hoverinfo: 'text'
             }], {
-                title: 'Efficient Frontier',
-                xaxis: { title: 'Risk (Standard Deviation)' },
-                yaxis: { title: 'Expected Return' },
+                title: 'Cálculo de carteras para un portafolio eficiente',
+                xaxis: { title: 'Riesgo (Standard Deviation)' },
+                yaxis: { title: 'Retorno esperado' },
                 width: 800,
                 height: 600
             })
         }
     })
-})
+}

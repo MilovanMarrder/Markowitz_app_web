@@ -23,7 +23,7 @@ def analizar():
     cov = df.cov().to_numpy()
 
     # Generar carteras aleatorias
-    n_portfolios = 1000
+    n_portfolios = 2000
     x = []
     y = []
     text = []
